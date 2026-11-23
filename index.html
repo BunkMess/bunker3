@@ -8,14 +8,12 @@
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
   body { background: #0e1621; color: #fff; height: 100vh; overflow: hidden; }
 
-  /* ===== LAYOUT ===== */
   .app { display: flex; height: 100vh; }
   .sidebar { width: 340px; background: #17212b; border-right: 1px solid #0e1621; display: flex; flex-direction: column; }
   .chat-area { flex: 1; display: flex; flex-direction: column; background: #0e1621; position: relative; }
 
-  /* ===== SIDEBAR ===== */
   .sidebar-header { padding: 12px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #0e1621; }
-  .menu-btn { background: none; border: none; color: #fff; cursor: pointer; padding: 8px; border-radius: 50%; }
+  .menu-btn { background: none; border: none; color: #fff; cursor: pointer; padding: 8px; border-radius: 50%; font-size: 20px; }
   .menu-btn:hover { background: #202d3b; }
   .search-box { flex: 1; background: #242f3d; border-radius: 20px; padding: 8px 16px; color: #fff; border: none; outline: none; }
   .search-box::placeholder { color: #6c7883; }
@@ -31,7 +29,6 @@
   .chat-time { font-size: 12px; color: #6c7883; }
   .chat-preview { font-size: 14px; color: #6c7883; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
 
-  /* ===== CHAT HEADER ===== */
   .chat-header { padding: 10px 16px; background: #17212b; border-bottom: 1px solid #0e1621; display: flex; align-items: center; gap: 12px; }
   .chat-header .avatar { width: 40px; height: 40px; font-size: 16px; }
   .chat-header-info { flex: 1; }
@@ -41,27 +38,34 @@
   .icon-btn { background: none; border: none; color: #6c7883; cursor: pointer; padding: 8px; border-radius: 50%; font-size: 20px; }
   .icon-btn:hover { background: #202d3b; color: #fff; }
 
-  /* ===== MESSAGES ===== */
   .messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 6px; }
-  .message { max-width: 70%; padding: 8px 12px; border-radius: 12px; font-size: 14px; line-height: 1.4; position: relative; word-wrap: break-word; }
+  .message { max-width: 70%; padding: 8px 12px; border-radius: 12px; font-size: 14px; line-height: 1.4; word-wrap: break-word; }
   .message.in { background: #182533; align-self: flex-start; border-bottom-left-radius: 4px; }
   .message.out { background: #2b5278; align-self: flex-end; border-bottom-right-radius: 4px; }
   .msg-time { font-size: 11px; color: #6c9cc7; margin-left: 8px; float: right; margin-top: 4px; }
   .message.out .msg-time { color: #7eb8dc; }
 
-  /* Gift message */
-  .gift-message { background: linear-gradient(135deg, #1e2a3a, #2b3a4d); border: 1px solid rgba(255,255,255,0.08); padding: 12px; border-radius: 16px; align-self: center; max-width: 280px; text-align: center; position: relative; overflow: hidden; }
-  .gift-message.nft { border: 1px solid rgba(255,215,0,0.3); box-shadow: 0 0 20px rgba(255,215,0,0.1); }
-  .gift-emoji { font-size: 64px; display: block; margin: 8px 0; animation: giftFloat 3s ease-in-out infinite; }
-  .gift-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
-  .gift-rarity { font-size: 11px; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-top: 4px; }
+  .gift-message { background: linear-gradient(135deg, #1e2a3a, #2b3a4d); border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 16px; align-self: center; max-width: 280px; text-align: center; position: relative; overflow: hidden; }
+  .gift-message.nft { border: 2px solid rgba(255,215,0,0.4); box-shadow: 0 0 30px rgba(255,215,0,0.15); }
+  .gift-message.nft.rare { border-color: rgba(74,144,226,0.5); box-shadow: 0 0 20px rgba(74,144,226,0.2); }
+  .gift-message.nft.epic { border-color: rgba(168,85,247,0.5); box-shadow: 0 0 25px rgba(168,85,247,0.25); }
+  .gift-message.nft.legendary { border-color: rgba(245,158,11,0.6); box-shadow: 0 0 30px rgba(245,158,11,0.3); }
+  .gift-message.nft.mythic { border-color: rgba(239,68,68,0.6); box-shadow: 0 0 40px rgba(239,68,68,0.4); animation: mythicGlow 2s ease-in-out infinite; }
+  @keyframes mythicGlow {
+    0%, 100% { box-shadow: 0 0 30px rgba(239,68,68,0.4); }
+    50% { box-shadow: 0 0 50px rgba(251,191,36,0.6); }
+  }
+  .gift-emoji { font-size: 72px; display: block; margin: 8px 0; animation: giftFloat 3s ease-in-out infinite; }
+  .gift-name { font-weight: 600; font-size: 16px; margin-bottom: 4px; }
+  .gift-rarity { font-size: 11px; padding: 3px 10px; border-radius: 10px; display: inline-block; margin-top: 4px; font-weight: 600; }
   .rarity-common { background: #5a6472; color: #fff; }
   .rarity-rare { background: linear-gradient(90deg, #4a90e2, #7bb3ff); color: #fff; }
   .rarity-epic { background: linear-gradient(90deg, #a855f7, #d8b4fe); color: #fff; }
   .rarity-legendary { background: linear-gradient(90deg, #f59e0b, #fbbf24); color: #1a1a1a; }
-  .rarity-mythic { background: linear-gradient(90deg, #ef4444, #f97316, #fbbf24); color: #fff; animation: mythicShine 2s linear infinite; background-size: 200% 100%; }
-  .gift-edition { font-size: 10px; color: #8a96a3; margin-top: 6px; }
+  .rarity-mythic { background: linear-gradient(90deg, #ef4444, #f97316, #fbbf24); color: #fff; background-size: 200% 100%; animation: mythicShine 2s linear infinite; }
+  .gift-edition { font-size: 10px; color: #8a96a3; margin-top: 6px; font-family: monospace; }
   .gift-from { font-size: 12px; color: #6c9cc7; margin-top: 6px; }
+  .gift-nft-tag { position: absolute; top: 8px; right: 8px; background: linear-gradient(90deg, #f59e0b, #ef4444); color: #fff; font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 700; letter-spacing: 0.5px; }
 
   @keyframes giftFloat {
     0%, 100% { transform: translateY(0) rotate(0deg); }
@@ -72,90 +76,90 @@
     100% { background-position: 200% 50%; }
   }
 
-  /* ===== INPUT ===== */
   .input-area { padding: 10px 16px; background: #17212b; display: flex; align-items: center; gap: 8px; }
   .msg-input { flex: 1; background: #242f3d; border: none; border-radius: 20px; padding: 10px 16px; color: #fff; outline: none; font-size: 14px; }
   .send-btn { background: #2b5278; border: none; color: #fff; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 18px; }
   .send-btn:hover { background: #3a6a9a; }
 
-  /* ===== GIFT PANEL ===== */
-  .gift-panel { position: absolute; bottom: 70px; right: 16px; width: 380px; max-height: 520px; background: #17212b; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); display: none; flex-direction: column; overflow: hidden; z-index: 100; border: 1px solid #202d3b; }
+  .gift-panel { position: absolute; bottom: 70px; right: 16px; width: 420px; max-height: 580px; background: #17212b; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); display: none; flex-direction: column; overflow: hidden; z-index: 100; border: 1px solid #202d3b; }
   .gift-panel.open { display: flex; }
   .gift-panel-header { padding: 14px 16px; border-bottom: 1px solid #0e1621; display: flex; justify-content: space-between; align-items: center; }
   .gift-panel-title { font-weight: 600; font-size: 15px; }
   .gift-tabs { display: flex; padding: 8px; gap: 4px; border-bottom: 1px solid #0e1621; }
   .gift-tab { flex: 1; padding: 8px; background: none; border: none; color: #6c7883; cursor: pointer; border-radius: 8px; font-size: 13px; font-weight: 500; }
   .gift-tab.active { background: #2b5278; color: #fff; }
-  .gift-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; overflow-y: auto; max-height: 400px; }
+  .gift-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 12px; overflow-y: auto; max-height: 440px; }
+
   .gift-card { background: #1e2a3a; border-radius: 12px; padding: 10px; text-align: center; cursor: pointer; transition: transform .15s, box-shadow .15s; position: relative; border: 1px solid transparent; }
-  .gift-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-  .gift-card.nft-card { background: linear-gradient(135deg, #1a1f2e, #2a2040); }
-  .gift-card.nft-card.rare { border-color: rgba(74,144,226,0.5); }
-  .gift-card.nft-card.epic { border-color: rgba(168,85,247,0.5); }
-  .gift-card.nft-card.legendary { border-color: rgba(245,158,11,0.5); box-shadow: 0 0 12px rgba(245,158,11,0.2); }
-  .gift-card.nft-card.mythic { border-color: rgba(239,68,68,0.6); box-shadow: 0 0 16px rgba(239,68,68,0.3); animation: mythicBorder 2s linear infinite; }
-  @keyframes mythicBorder {
-    0%, 100% { box-shadow: 0 0 16px rgba(239,68,68,0.3); }
-    50% { box-shadow: 0 0 24px rgba(251,191,36,0.5); }
-  }
+  .gift-card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,0.4); }
   .gift-card-emoji { font-size: 40px; margin: 4px 0; display: block; }
   .gift-card-name { font-size: 12px; font-weight: 500; margin-bottom: 2px; }
   .gift-card-price { font-size: 11px; color: #fbbf24; }
-  .gift-card-stock { font-size: 10px; color: #ef4444; margin-top: 2px; }
-  .gift-card-rarity-dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%; }
-  .dot-common { background: #5a6472; }
-  .dot-rare { background: #4a90e2; }
-  .dot-epic { background: #a855f7; }
-  .dot-legendary { background: #f59e0b; }
-  .dot-mythic { background: linear-gradient(90deg, #ef4444, #fbbf24); }
 
-  /* ===== FLOATING ANIMATIONS ===== */
-  .float-anim { position: fixed; pointer-events: none; z-index: 9999; font-size: 40px; }
+  /* NFT cards */
+  .gift-card.nft-card { background: linear-gradient(135deg, #1a1f2e, #2a2040); padding: 12px 8px; }
+  .gift-card.nft-card .gift-card-emoji { font-size: 44px; margin: 6px 0; }
+  .gift-card.nft-card.rare { border: 1px solid rgba(74,144,226,0.6); background: linear-gradient(135deg, #0f1e3a, #1a2f5a); }
+  .gift-card.nft-card.rare:hover { box-shadow: 0 0 20px rgba(74,144,226,0.4); }
+  .gift-card.nft-card.epic { border: 1px solid rgba(168,85,247,0.6); background: linear-gradient(135deg, #2a1440, #3d1f5a); }
+  .gift-card.nft-card.epic:hover { box-shadow: 0 0 20px rgba(168,85,247,0.4); }
+  .gift-card.nft-card.legendary { border: 1px solid rgba(245,158,11,0.7); background: linear-gradient(135deg, #3a2500, #5a3800); animation: legendaryPulse 3s ease-in-out infinite; }
+  @keyframes legendaryPulse {
+    0%, 100% { box-shadow: 0 0 10px rgba(245,158,11,0.3); }
+    50% { box-shadow: 0 0 25px rgba(245,158,11,0.6); }
+  }
+  .gift-card.nft-card.mythic { border: 2px solid transparent; background: linear-gradient(135deg, #3a0a0a, #5a1a1a) padding-box, linear-gradient(90deg, #ef4444, #f97316, #fbbf24, #ef4444) border-box; background-size: 100% 100%, 200% 100%; animation: mythicBorder 3s linear infinite; }
+  @keyframes mythicBorder {
+    0% { background-position: 0 0, 0% 50%; }
+    100% { background-position: 0 0, 200% 50%; }
+  }
+  .gift-card.nft-card.mythic:hover { box-shadow: 0 0 30px rgba(239,68,68,0.6); }
+
+  .gift-card-stock { font-size: 10px; color: #ef4444; margin-top: 4px; font-weight: 600; }
+  .gift-card-stock.sold { color: #6c7883; }
+  .gift-card-rarity-dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%; }
+  .dot-rare { background: #4a90e2; box-shadow: 0 0 6px #4a90e2; }
+  .dot-epic { background: #a855f7; box-shadow: 0 0 6px #a855f7; }
+  .dot-legendary { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+  .dot-mythic { background: linear-gradient(90deg, #ef4444, #fbbf24); box-shadow: 0 0 10px #ef4444; }
+
+  .nft-badge { position: absolute; top: 4px; left: 4px; background: linear-gradient(90deg, #f59e0b, #ef4444); color: #fff; font-size: 8px; padding: 2px 5px; border-radius: 4px; font-weight: 700; letter-spacing: 0.5px; }
+  .limited-badge { position: absolute; top: 4px; left: 4px; background: linear-gradient(90deg, #ec4899, #8b5cf6); color: #fff; font-size: 8px; padding: 2px 5px; border-radius: 4px; font-weight: 700; letter-spacing: 0.5px; }
+
+  .float-anim { position: fixed; pointer-events: none; z-index: 9999; font-size: 50px; }
   @keyframes floatUp {
     0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 0; }
-    15% { transform: translateY(-30px) scale(1.2) rotate(-10deg); opacity: 1; }
-    85% { transform: translateY(-300px) scale(1) rotate(10deg); opacity: 1; }
-    100% { transform: translateY(-400px) scale(0.8) rotate(0deg); opacity: 0; }
+    15% { transform: translateY(-30px) scale(1.3) rotate(-10deg); opacity: 1; }
+    85% { transform: translateY(-350px) scale(1) rotate(10deg); opacity: 1; }
+    100% { transform: translateY(-450px) scale(0.8) rotate(0deg); opacity: 0; }
   }
-  @keyframes heartBeat {
-    0%, 100% { transform: scale(1); }
-    25% { transform: scale(1.3); }
-    50% { transform: scale(1); }
-    75% { transform: scale(1.2); }
-  }
-  @keyframes sparkle {
-    0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
-    50% { transform: scale(1.4) rotate(180deg); opacity: 0.7; }
-  }
-  @keyframes fireFlicker {
-    0%, 100% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-4px) scale(1.1); }
-  }
-  @keyframes rocketLaunch {
-    0% { transform: translateY(0) rotate(-45deg); opacity: 1; }
-    100% { transform: translateY(-500px) rotate(-45deg); opacity: 0; }
-  }
-  @keyframes starTwinkle {
-    0%, 100% { transform: scale(1); opacity: 1; filter: brightness(1); }
-    50% { transform: scale(1.3); opacity: 0.8; filter: brightness(1.5); }
-  }
-  @keyframes crownGlow {
-    0%, 100% { filter: drop-shadow(0 0 4px gold); }
-    50% { filter: drop-shadow(0 0 12px gold); }
-  }
-  @keyframes diamondShine {
-    0%, 100% { filter: drop-shadow(0 0 4px #7dd3fc) brightness(1); }
-    50% { filter: drop-shadow(0 0 14px #7dd3fc) brightness(1.4); }
-  }
-  @keyframes cakeWiggle {
-    0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(-5deg); }
-    75% { transform: rotate(5deg); }
-  }
-  @keyframes trophyShine {
-    0%, 100% { filter: drop-shadow(0 0 4px #fbbf24); }
-    50% { filter: drop-shadow(0 0 16px #fbbf24); }
-  }
+  @keyframes heartBeat { 0%,100%{transform:scale(1)} 25%{transform:scale(1.3)} 50%{transform:scale(1)} 75%{transform:scale(1.2)} }
+  @keyframes sparkle { 0%,100%{transform:scale(1) rotate(0deg);opacity:1} 50%{transform:scale(1.4) rotate(180deg);opacity:0.7} }
+  @keyframes fireFlicker { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-4px) scale(1.1)} }
+  @keyframes rocketLaunch { 0%{transform:translateY(0) rotate(-45deg);opacity:1} 100%{transform:translateY(-600px) rotate(-45deg);opacity:0} }
+  @keyframes starTwinkle { 0%,100%{transform:scale(1);opacity:1;filter:brightness(1)} 50%{transform:scale(1.3);opacity:0.8;filter:brightness(1.5)} }
+  @keyframes crownGlow { 0%,100%{filter:drop-shadow(0 0 4px gold)} 50%{filter:drop-shadow(0 0 14px gold)} }
+  @keyframes diamondShine { 0%,100%{filter:drop-shadow(0 0 4px #7dd3fc) brightness(1)} 50%{filter:drop-shadow(0 0 16px #7dd3fc) brightness(1.5)} }
+  @keyframes cakeWiggle { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(-5deg)} 75%{transform:rotate(5deg)} }
+  @keyframes trophyShine { 0%,100%{filter:drop-shadow(0 0 4px #fbbf24)} 50%{filter:drop-shadow(0 0 18px #fbbf24)} }
+  @keyframes dragonFire { 0%,100%{filter:drop-shadow(0 0 6px #ef4444) brightness(1)} 50%{filter:drop-shadow(0 0 20px #f97316) brightness(1.3)} }
+  @keyframes unicornMagic { 0%,100%{filter:drop-shadow(0 0 6px #d8b4fe)} 50%{filter:drop-shadow(0 0 18px #a855f7)} }
+  @keyframes galaxySpin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+  @keyframes phoenixFlame { 0%,100%{filter:drop-shadow(0 0 8px #ef4444) brightness(1)} 50%{filter:drop-shadow(0 0 24px #fbbf24) brightness(1.4)} }
+  @keyframes tridentGlow { 0%,100%{filter:drop-shadow(0 0 6px #06b6d4)} 50%{filter:drop-shadow(0 0 20px #06b6d4)} }
+  @keyframes meteorFall { 0%{transform:translate(0,0) rotate(-30deg);opacity:1} 100%{transform:translate(-200px,400px) rotate(-30deg);opacity:0} }
+  @keyframes castleShine { 0%,100%{filter:drop-shadow(0 0 4px #fbbf24)} 50%{filter:drop-shadow(0 0 16px #fbbf24)} }
+  @keyframes maskMystery { 0%,100%{filter:drop-shadow(0 0 4px #a855f7)} 50%{filter:drop-shadow(0 0 16px #a855f7)} }
+  @keyframes swordGlint { 0%,100%{filter:drop-shadow(0 0 4px #94a3b8)} 50%{filter:drop-shadow(0 0 14px #e2e8f0)} }
+  @keyframes crystalMagic { 0%,100%{filter:drop-shadow(0 0 6px #c084fc) brightness(1)} 50%{filter:drop-shadow(0 0 20px #c084fc) brightness(1.4)} }
+  @keyframes treeSparkle { 0%,100%{filter:drop-shadow(0 0 4px #22c55e)} 50%{filter:drop-shadow(0 0 14px #22c55e)} }
+  @keyframes pumpkinGlow { 0%,100%{filter:drop-shadow(0 0 4px #f97316)} 50%{filter:drop-shadow(0 0 16px #f97316)} }
+  @keyframes valentineBeat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+  @keyframes fireworkBurst { 0%{transform:scale(0.5);opacity:1} 50%{transform:scale(1.5);opacity:1} 100%{transform:scale(2);opacity:0} }
+  @keyframes doveFly { 0%,100%{transform:translateY(0) rotate(0deg)} 25%{transform:translateY(-8px) rotate(-3deg)} 75%{transform:translateY(-4px) rotate(3deg)} }
+  @keyframes medalShine { 0%,100%{filter:drop-shadow(0 0 6px #fbbf24)} 50%{filter:drop-shadow(0 0 20px #fbbf24)} }
+  @keyframes bearHug { 0%,100%{transform:scale(1) rotate(0)} 50%{transform:scale(1.1) rotate(-5deg)} }
+  @keyframes roseSway { 0%,100%{transform:rotate(-3deg)} 50%{transform:rotate(3deg)} }
 
   .anim-heart { animation: heartBeat 1s ease-in-out infinite, floatUp 3s ease-out forwards; }
   .anim-sparkle { animation: sparkle 0.8s ease-in-out infinite, floatUp 3s ease-out forwards; }
@@ -170,17 +174,29 @@
   .anim-laugh { animation: sparkle 0.6s ease-in-out infinite, floatUp 3s ease-out forwards; }
   .anim-clap { animation: sparkle 0.5s ease-in-out infinite, floatUp 3s ease-out forwards; }
   .anim-party { animation: starTwinkle 0.7s ease-in-out infinite, floatUp 3s ease-out forwards; }
-  .anim-unicorn { animation: sparkle 1s ease-in-out infinite, floatUp 3s ease-out forwards; }
-  .anim-dragon { animation: fireFlicker 0.4s ease-in-out infinite, floatUp 3s ease-out forwards; }
-  .anim-galaxy { animation: starTwinkle 1.5s ease-in-out infinite, floatUp 3s ease-out forwards; }
-  .anim-phoenix { animation: fireFlicker 0.5s ease-in-out infinite, floatUp 3s ease-out forwards; }
+  .anim-unicorn { animation: unicornMagic 1.5s ease-in-out infinite, floatUp 3s ease-out forwards; }
+  .anim-dragon { animation: dragonFire 0.8s ease-in-out infinite, floatUp 3s ease-out forwards; }
+  .anim-galaxy { animation: galaxySpin 8s linear infinite, floatUp 4s ease-out forwards; }
+  .anim-phoenix { animation: phoenixFlame 1s ease-in-out infinite, floatUp 3s ease-out forwards; }
+  .anim-trident { animation: tridentGlow 1.5s ease-in-out infinite, floatUp 3s ease-out forwards; }
+  .anim-meteor { animation: meteorFall 2s ease-in forwards; }
+  .anim-castle { animation: castleShine 2s ease-in-out infinite, floatUp 3s ease-out forwards; }
+  .anim-mask { animation: maskMystery 1.5s ease-in-out infinite, floatUp 3s ease-out forwards; }
+  .anim-sword { animation: swordGlint 1.2s ease-in-out infinite, floatUp 3s ease-out forwards; }
+  .anim-crystal { animation: crystalMagic 1.5s ease-in-out infinite, floatUp 3s ease-out forwards; }
+  .anim-tree { animation: treeSparkle 1.5s ease-in-out infinite, floatUp 3s ease-out forwards; }
+  .anim-pumpkin { animation: pumpkinGlow 1.2s ease-in-out infinite, floatUp 3s ease-out forwards; }
+  .anim-valentine { animation: valentineBeat 1s ease-in-out infinite, floatUp 3s ease-out forwards; }
+  .anim-firework { animation: fireworkBurst 1.5s ease-out forwards; }
+  .anim-dove { animation: doveFly 2s ease-in-out infinite, floatUp 3s ease-out forwards; }
+  .anim-medal { animation: medalShine 1.5s ease-in-out infinite, floatUp 3s ease-out forwards; }
+  .anim-bear { animation: bearHug 1.5s ease-in-out infinite, floatUp 3s ease-out forwards; }
+  .anim-rose { animation: roseSway 2s ease-in-out infinite, floatUp 3s ease-out forwards; }
 
-  /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #2b3a4d; border-radius: 3px; }
 
-  /* Gift sent notification */
   .gift-sent-toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #2b5278, #3a6a9a); padding: 12px 24px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); z-index: 10000; display: none; font-size: 14px; font-weight: 500; }
   .gift-sent-toast.show { display: block; animation: toastIn 0.3s ease-out; }
   @keyframes toastIn {
@@ -188,13 +204,15 @@
     to { transform: translateX(-50%) translateY(0); opacity: 1; }
   }
 
-  /* NFT badge */
-  .nft-badge { position: absolute; top: 4px; left: 4px; background: linear-gradient(90deg, #f59e0b, #ef4444); color: #fff; font-size: 8px; padding: 1px 5px; border-radius: 4px; font-weight: 700; letter-spacing: 0.5px; }
+  .rarity-label { font-size: 9px; color: #8a96a3; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+  .rarity-label.rare { color: #7bb3ff; }
+  .rarity-label.epic { color: #d8b4fe; }
+  .rarity-label.legendary { color: #fbbf24; }
+  .rarity-label.mythic { color: #f97316; }
 </style>
 </head>
 <body>
 <div class="app">
-  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-header">
       <button class="menu-btn" title="Меню">☰</button>
@@ -203,7 +221,6 @@
     <div class="chat-list" id="chatList"></div>
   </aside>
 
-  <!-- CHAT -->
   <main class="chat-area">
     <div class="chat-header">
       <div class="avatar" id="chatAvatar" style="background:#5a8bc2;">A</div>
@@ -221,13 +238,12 @@
     <div class="messages" id="messages"></div>
 
     <div class="input-area">
-      <button class="icon-btn" id="attachBtn" title="Прикрепить">📎</button>
+      <button class="icon-btn" title="Прикрепить">📎</button>
       <input class="msg-input" id="msgInput" placeholder="Сообщение..." />
       <button class="icon-btn" id="giftBtn" title="Подарок">🎁</button>
       <button class="send-btn" id="sendBtn">➤</button>
     </div>
 
-    <!-- Gift Panel -->
     <div class="gift-panel" id="giftPanel">
       <div class="gift-panel-header">
         <div class="gift-panel-title">🎁 Подарки</div>
@@ -246,38 +262,35 @@
 <div class="gift-sent-toast" id="giftToast"></div>
 
 <script>
-/* ===== DATA ===== */
 const chats = [
   { id: 1, name: 'Анна', color: '#5a8bc2', status: 'в сети', preview: 'Привет! Как дела?', time: '14:32' },
   { id: 2, name: 'Максим', color: '#e06c75', status: 'был(а) недавно', preview: 'Скинь тот файл', time: '13:10' },
   { id: 3, name: 'Команда проекта', color: '#98c379', status: '5 участников', preview: 'Олег: встреча в 15:00', time: '12:45' },
   { id: 4, name: 'Елена', color: '#c678dd', status: 'была 2 часа назад', preview: 'Спасибо за подарок! 🎁', time: 'Вчера' },
   { id: 5, name: 'Дмитрий', color: '#e5c07b', status: 'в сети', preview: 'Ок, договорились', time: 'Вчера' },
-  { id: 6, name: 'BunkMess News', color: '#61afef', status: 'канал', preview: '🎉 Новые NFT-подарки уже доступны!', time: 'Пн' }
+  { id: 6, name: 'BunkMess News', color: '#61afef', status: 'канал', preview: '🎉 Новые NFT уже доступны!', time: 'Пн' }
 ];
 
 const chatMessages = {
   1: [
     { type: 'in', text: 'Привет! Как дела?' },
     { type: 'in', text: 'Давно не виделись 😊' },
-    { type: 'out', text: 'Привет! Всё отлично, работаю над новым проектом' },
-    { type: 'in', text: 'Круто! Расскажешь потом?' },
-    { type: 'out', text: 'Конечно! 👍' }
+    { type: 'out', text: 'Привет! Всё отлично' },
+    { type: 'in', text: 'Круто!' }
   ],
   2: [
-    { type: 'in', text: 'Привет, можешь скинуть тот файл с презентацией?' },
-    { type: 'out', text: 'Да, сейчас найду и отправлю' },
+    { type: 'in', text: 'Можешь скинуть тот файл?' },
+    { type: 'out', text: 'Да, сейчас найду' },
     { type: 'in', text: 'Скинь тот файл' }
   ],
   3: [
-    { type: 'in', name: 'Олег', text: 'Всем привет! Напоминаю про встречу' },
+    { type: 'in', name: 'Олег', text: 'Всем привет!' },
     { type: 'in', name: 'Олег', text: 'встреча в 15:00' },
     { type: 'out', text: 'Буду!' }
   ],
   4: [
     { type: 'out', text: 'С днём рождения! 🎂' },
-    { type: 'in', text: 'Спасибо за подарок! 🎁' },
-    { type: 'in', text: 'Очень приятно ❤️' }
+    { type: 'in', text: 'Спасибо за подарок! 🎁' }
   ],
   5: [
     { type: 'in', text: 'Встречаемся завтра в 10?' },
@@ -285,17 +298,17 @@ const chatMessages = {
     { type: 'in', text: 'Ок, договорились' }
   ],
   6: [
-    { type: 'in', text: '🎉 Новые NFT-подарки уже доступны! Собирайте редкие коллекции.' }
+    { type: 'in', text: '🎉 Новые NFT-подарки уже доступны!' }
   ]
 };
 
-/* ===== GIFTS ===== */
+/* ===== ОБЫЧНЫЕ ПОДАРКИ (25 шт) ===== */
 const regularGifts = [
   { emoji: '❤️', name: 'Сердце', price: 5, anim: 'anim-heart' },
   { emoji: '🔥', name: 'Огонь', price: 10, anim: 'anim-fire' },
   { emoji: '⭐', name: 'Звезда', price: 15, anim: 'anim-star' },
   { emoji: '🎂', name: 'Торт', price: 20, anim: 'anim-cake' },
-  { emoji: '🌹', name: 'Роза', price: 25, anim: 'anim-heart' },
+  { emoji: '🌹', name: 'Роза', price: 25, anim: 'anim-rose' },
   { emoji: '🍫', name: 'Шоколад', price: 30, anim: 'anim-cake' },
   { emoji: '🎈', name: 'Шарик', price: 10, anim: 'anim-party' },
   { emoji: '🎉', name: 'Праздник', price: 35, anim: 'anim-party' },
@@ -308,37 +321,74 @@ const regularGifts = [
   { emoji: '🌈', name: 'Радуга', price: 45, anim: 'anim-party' },
   { emoji: '🎵', name: 'Мелодия', price: 25, anim: 'anim-sparkle' },
   { emoji: '☕', name: 'Кофе', price: 15, anim: 'anim-fire' },
-  { emoji: '🍕', name: 'Пицца', price: 20, anim: 'anim-cake' }
+  { emoji: '🍕', name: 'Пицца', price: 20, anim: 'anim-cake' },
+  { emoji: '🍀', name: 'Клевер', price: 35, anim: 'anim-sparkle' },
+  { emoji: '🌸', name: 'Сакура', price: 40, anim: 'anim-rose' },
+  { emoji: '🎁', name: 'Сюрприз', price: 50, anim: 'anim-party' },
+  { emoji: '🐻', name: 'Мишка', price: 60, anim: 'anim-bear' },
+  { emoji: '🍭', name: 'Леденец', price: 15, anim: 'anim-cake' },
+  { emoji: '🌙', name: 'Луна', price: 45, anim: 'anim-star' },
+  { emoji: '☀️', name: 'Солнце', price: 50, anim: 'anim-star' }
 ];
 
+/* ===== NFT ПОДАРКИ (30 шт, 5 уровней редкости) ===== */
 const nftGifts = [
+  // RARE (синие) — 7 штук
   { emoji: '🏆', name: 'Кубок', price: 150, rarity: 'rare', anim: 'anim-trophy', stock: 5000, total: 10000 },
-  { emoji: '🎭', name: 'Маска', price: 200, rarity: 'rare', anim: 'anim-sparkle', stock: 3200, total: 10000 },
-  { emoji: '🗡️', name: 'Меч', price: 250, rarity: 'rare', anim: 'anim-star', stock: 4100, total: 10000 },
+  { emoji: '🎭', name: 'Маска', price: 200, rarity: 'rare', anim: 'anim-mask', stock: 3200, total: 10000 },
+  { emoji: '🗡️', name: 'Меч', price: 250, rarity: 'rare', anim: 'anim-sword', stock: 4100, total: 10000 },
+  { emoji: '🛡️', name: 'Щит', price: 220, rarity: 'rare', anim: 'anim-sword', stock: 3800, total: 10000 },
+  { emoji: '🏹', name: 'Лук', price: 280, rarity: 'rare', anim: 'anim-sword', stock: 2900, total: 10000 },
+  { emoji: '🔔', name: 'Колокол', price: 180, rarity: 'rare', anim: 'anim-trophy', stock: 4500, total: 10000 },
+  { emoji: '🎺', name: 'Труба', price: 240, rarity: 'rare', anim: 'anim-trophy', stock: 3600, total: 10000 },
+
+  // EPIC (фиолетовые) — 8 штук
   { emoji: '🦄', name: 'Единорог', price: 500, rarity: 'epic', anim: 'anim-unicorn', stock: 800, total: 5000 },
-  { emoji: '🔮', name: 'Кристалл магии', price: 600, rarity: 'epic', anim: 'anim-sparkle', stock: 650, total: 5000 },
+  { emoji: '🔮', name: 'Кристалл магии', price: 600, rarity: 'epic', anim: 'anim-crystal', stock: 650, total: 5000 },
   { emoji: '🌌', name: 'Галактика', price: 750, rarity: 'epic', anim: 'anim-galaxy', stock: 420, total: 5000 },
+  { emoji: '🧙', name: 'Маг', price: 680, rarity: 'epic', anim: 'anim-crystal', stock: 550, total: 5000 },
+  { emoji: '🦉', name: 'Мудрая сова', price: 580, rarity: 'epic', anim: 'anim-unicorn', stock: 720, total: 5000 },
+  { emoji: '🌠', name: 'Звездопад', price: 720, rarity: 'epic', anim: 'anim-meteor', stock: 480, total: 5000 },
+  { emoji: '🪄', name: 'Волшебная палочка', price: 650, rarity: 'epic', anim: 'anim-crystal', stock: 600, total: 5000 },
+  { emoji: '🌺', name: 'Магический цветок', price: 550, rarity: 'epic', anim: 'anim-unicorn', stock: 780, total: 5000 },
+
+  // LEGENDARY (золотые) — 8 штук
   { emoji: '👑', name: 'Корона', price: 1500, rarity: 'legendary', anim: 'anim-crown', stock: 120, total: 1000 },
   { emoji: '🐉', name: 'Дракон', price: 2000, rarity: 'legendary', anim: 'anim-dragon', stock: 85, total: 1000 },
-  { emoji: '🏰', name: 'Замок', price: 2500, rarity: 'legendary', anim: 'anim-crown', stock: 45, total: 1000 },
-  { emoji: '🔱', name: 'Трезубец', price: 5000, rarity: 'mythic', anim: 'anim-phoenix', stock: 12, total: 100 },
-  { emoji: '🌠', name: 'Падающая звезда', price: 7500, rarity: 'mythic', anim: 'anim-rocket', stock: 7, total: 100 },
-  { emoji: '🦅', name: 'Феникс', price: 10000, rarity: 'mythic', anim: 'anim-phoenix', stock: 3, total: 50 }
+  { emoji: '🏰', name: 'Замок', price: 2500, rarity: 'legendary', anim: 'anim-castle', stock: 45, total: 1000 },
+  { emoji: '🦁', name: 'Лев', price: 1800, rarity: 'legendary', anim: 'anim-dragon', stock: 95, total: 1000 },
+  { emoji: '⚔️', name: 'Скрещенные мечи', price: 2200, rarity: 'legendary', anim: 'anim-sword', stock: 70, total: 1000 },
+  { emoji: '🗝️', name: 'Золотой ключ', price: 1600, rarity: 'legendary', anim: 'anim-crown', stock: 110, total: 1000 },
+  { emoji: '🏺', name: 'Древняя ваза', price: 1900, rarity: 'legendary', anim: 'anim-castle', stock: 88, total: 1000 },
+  { emoji: '📜', name: 'Свиток мудрости', price: 1700, rarity: 'legendary', anim: 'anim-crown', stock: 100, total: 1000 },
+
+  // MYTHIC (красно-золотые) — 7 штук
+  { emoji: '🔱', name: 'Трезубец Посейдона', price: 5000, rarity: 'mythic', anim: 'anim-trident', stock: 12, total: 100 },
+  { emoji: '☄️', name: 'Падающая звезда', price: 7500, rarity: 'mythic', anim: 'anim-meteor', stock: 7, total: 100 },
+  { emoji: '🦅', name: 'Феникс', price: 10000, rarity: 'mythic', anim: 'anim-phoenix', stock: 3, total: 50 },
+  { emoji: '🐲', name: 'Древний дракон', price: 12000, rarity: 'mythic', anim: 'anim-phoenix', stock: 2, total: 25 },
+  { emoji: '🌋', name: 'Вулкан', price: 8500, rarity: 'mythic', anim: 'anim-fire', stock: 5, total: 75 },
+  { emoji: '⚡', name: 'Молния Зевса', price: 9500, rarity: 'mythic', anim: 'anim-phoenix', stock: 4, total: 60 },
+  { emoji: '🌌', name: 'Чёрная дыра', price: 15000, rarity: 'mythic', anim: 'anim-galaxy', stock: 1, total: 10 }
 ];
 
+/* ===== ЛИМИТИРОВАННЫЕ (10 шт) ===== */
 const limitedGifts = [
-  { emoji: '🎄', name: 'Новогодняя ёль', price: 300, rarity: 'epic', anim: 'anim-star', stock: 24, total: 2026, note: 'НГ 2026' },
-  { emoji: '🎃', name: 'Тыква Хэллоуина', price: 400, rarity: 'epic', anim: 'anim-fire', stock: 0, total: 2025, note: 'Хэллоуин 2025' },
-  { emoji: '💝', name: 'Валентинка', price: 350, rarity: 'rare', anim: 'anim-heart', stock: 14, total: 2026, note: '14 февраля' },
-  { emoji: '🎆', name: 'Фейерверк', price: 500, rarity: 'legendary', anim: 'anim-rocket', stock: 5, total: 100, note: 'Новый Год' },
-  { emoji: '🕊️', name: 'Голубь мира', price: 1200, rarity: 'legendary', anim: 'anim-sparkle', stock: 2, total: 50, note: 'Особый выпуск' },
-  { emoji: '🏅', name: 'Олимпийский', price: 3000, rarity: 'mythic', anim: 'anim-trophy', stock: 1, total: 10, note: 'Лимитка' }
+  { emoji: '🎄', name: 'Новогодняя ёлка', price: 300, rarity: 'epic', anim: 'anim-tree', stock: 24, total: 2026, note: 'НГ 2026' },
+  { emoji: '🎃', name: 'Тыква Хэллоуина', price: 400, rarity: 'epic', anim: 'anim-pumpkin', stock: 0, total: 2025, note: 'Хэллоуин 2025' },
+  { emoji: '💝', name: 'Валентинка', price: 350, rarity: 'rare', anim: 'anim-valentine', stock: 14, total: 2026, note: '14 февраля' },
+  { emoji: '🎆', name: 'Фейерверк', price: 500, rarity: 'legendary', anim: 'anim-firework', stock: 5, total: 100, note: 'Новый Год' },
+  { emoji: '🕊️', name: 'Голубь мира', price: 1200, rarity: 'legendary', anim: 'anim-dove', stock: 2, total: 50, note: 'Особый выпуск' },
+  { emoji: '🏅', name: 'Олимпийский', price: 3000, rarity: 'mythic', anim: 'anim-medal', stock: 1, total: 10, note: 'Лимитка' },
+  { emoji: '🎇', name: 'Бенгальский огонь', price: 450, rarity: 'epic', anim: 'anim-firework', stock: 18, total: 2026, note: 'НГ 2026' },
+  { emoji: '🎊', name: 'Конфетти', price: 280, rarity: 'rare', anim: 'anim-party', stock: 42, total: 2026, note: 'Праздник' },
+  { emoji: '🎅', name: 'Санта', price: 600, rarity: 'legendary', anim: 'anim-bear', stock: 8, total: 200, note: 'НГ 2026' },
+  { emoji: '🎁', name: 'Подарок Деда Мороза', price: 1500, rarity: 'mythic', anim: 'anim-party', stock: 3, total: 50, note: 'НГ 2026' }
 ];
 
 let currentChat = 1;
 let currentTab = 'regular';
 
-/* ===== RENDER ===== */
 function renderChats() {
   const list = document.getElementById('chatList');
   list.innerHTML = chats.map(c => `
@@ -374,9 +424,10 @@ function renderMessages() {
   container.innerHTML = msgs.map(m => {
     if (m.type === 'gift') {
       const rarityClass = m.rarity ? `rarity-${m.rarity}` : '';
-      const nftClass = m.isNft ? 'nft' : '';
+      const nftClass = m.isNft ? `nft ${m.rarity || ''}` : '';
       return `
         <div class="gift-message ${nftClass}">
+          ${m.isNft ? '<div class="gift-nft-tag">NFT</div>' : ''}
           <span class="gift-emoji">${m.emoji}</span>
           <div class="gift-name">${m.name}</div>
           ${m.rarity ? `<span class="gift-rarity ${rarityClass}">${rarityLabel(m.rarity)}</span>` : ''}
@@ -400,16 +451,15 @@ function now() {
   return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
 }
 
-/* ===== GIFTS PANEL ===== */
 function renderGifts() {
   const grid = document.getElementById('giftGrid');
-  let gifts;
-  if (currentTab === 'regular') gifts = regularGifts.map(g => ({...g, isNft: false}));
-  else if (currentTab === 'nft') gifts = nftGifts;
-  else gifts = limitedGifts;
+  let gifts, tabType;
+  if (currentTab === 'regular') { gifts = regularGifts; tabType = 'regular'; }
+  else if (currentTab === 'nft') { gifts = nftGifts; tabType = 'nft'; }
+  else { gifts = limitedGifts; tabType = 'limited'; }
 
   grid.innerHTML = gifts.map((g, i) => {
-    if (g.isNft === false || (!g.rarity && currentTab === 'regular')) {
+    if (tabType === 'regular') {
       return `
         <div class="gift-card" data-tab="regular" data-idx="${i}">
           <span class="gift-card-emoji">${g.emoji}</span>
@@ -418,15 +468,18 @@ function renderGifts() {
         </div>
       `;
     }
-    const stockText = g.stock === 0 ? 'Распродано' : `Осталось: ${g.stock}/${g.total}`;
+    const stockText = g.stock === 0 ? 'Распродано' : `${g.stock}/${g.total}`;
+    const stockClass = g.stock === 0 ? 'sold' : '';
+    const badge = tabType === 'limited' ? '<div class="limited-badge">LIMITED</div>' : '<div class="nft-badge">NFT</div>';
     return `
-      <div class="gift-card nft-card ${g.rarity}" data-tab="${currentTab}" data-idx="${i}">
-        ${g.rarity === 'legendary' || g.rarity === 'mythic' ? '<div class="nft-badge">NFT</div>' : ''}
+      <div class="gift-card nft-card ${g.rarity}" data-tab="${tabType}" data-idx="${i}">
+        ${badge}
         <div class="gift-card-rarity-dot dot-${g.rarity}"></div>
         <span class="gift-card-emoji">${g.emoji}</span>
         <div class="gift-card-name">${g.name}</div>
+        <div class="rarity-label ${g.rarity}">${rarityLabel(g.rarity)}</div>
         <div class="gift-card-price">⭐ ${g.price}</div>
-        <div class="gift-card-stock">${stockText}</div>
+        <div class="gift-card-stock ${stockClass}">${stockText}</div>
         ${g.note ? `<div style="font-size:9px;color:#8a96a3;margin-top:2px;">${g.note}</div>` : ''}
       </div>
     `;
@@ -445,7 +498,6 @@ function renderGifts() {
         showToast('❌ Этот подарок распродан');
         return;
       }
-
       sendGift(gift, tab);
     });
   });
@@ -460,7 +512,7 @@ function sendGift(gift, tab) {
     rarity: gift.rarity,
     isNft: isNft,
     from: 'Вы',
-    edition: isNft ? `${gift.rarity ? rarityLabel(gift.rarity) + ' · ' : ''}#${Math.floor(Math.random()*9000+1000)}` : null
+    edition: isNft ? `${rarityLabel(gift.rarity)} · #${Math.floor(Math.random()*9000+1000)}` : null
   };
   if (!chatMessages[currentChat]) chatMessages[currentChat] = [];
   chatMessages[currentChat].push(msg);
@@ -474,7 +526,7 @@ function sendGift(gift, tab) {
 }
 
 function launchAnimation(gift) {
-  const count = gift.rarity === 'mythic' ? 12 : gift.rarity === 'legendary' ? 8 : gift.rarity === 'epic' ? 6 : 4;
+  const count = gift.rarity === 'mythic' ? 15 : gift.rarity === 'legendary' ? 10 : gift.rarity === 'epic' ? 7 : gift.rarity === 'rare' ? 5 : 4;
   for (let i = 0; i < count; i++) {
     setTimeout(() => {
       const el = document.createElement('div');
@@ -483,8 +535,8 @@ function launchAnimation(gift) {
       el.style.left = (Math.random() * window.innerWidth * 0.6 + window.innerWidth * 0.2) + 'px';
       el.style.top = (window.innerHeight - 100) + 'px';
       document.body.appendChild(el);
-      setTimeout(() => el.remove(), 3500);
-    }, i * 120);
+      setTimeout(() => el.remove(), 4000);
+    }, i * 100);
   }
 }
 
@@ -495,7 +547,6 @@ function showToast(text) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-/* ===== EVENTS ===== */
 document.getElementById('giftBtn').addEventListener('click', () => {
   document.getElementById('giftPanel').classList.toggle('open');
   renderGifts();
@@ -527,7 +578,6 @@ function sendMessage() {
   renderMessages();
 }
 
-/* ===== INIT ===== */
 renderChats();
 renderMessages();
 </script>
