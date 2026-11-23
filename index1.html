@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vkgram Messenger</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script type="importmap">
+{"imports":{
+"react":"https://esm.sh/react@18.3.1",
+"react-dom/client":"https://esm.sh/react-dom@18.3.1/client?external=react",
+"lucide-react":"https://esm.sh/lucide-react@0.383.0?external=react",
+"firebase/app":"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js",
+"firebase/auth":"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js",
+"firebase/firestore":"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"}}
+</script>
+<script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
+<style>
+html,body{margin:0;background:#0a0a0b}body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:#2a2d33}
+.rounded-xl,.rounded-2xl,.rounded-3xl,.rounded-lg,.rounded-md{border-radius:3px!important}
+.shadow,.shadow-sm,.shadow-lg,.shadow-2xl{box-shadow:none!important}
+.pn.rounded-2xl,.pn.rounded-3xl{border:1px solid var(--line)}
+.pn{background:var(--panel)}.bgm{background:var(--bg)}.tx{color:var(--text)}.mu{color:var(--muted)}.bl{border-color:var(--line)}
+.acb{background:var(--acc);color:#fff}.act{color:var(--acc)}.hv:hover{background:var(--hover)}.sel{background:var(--hover);color:var(--text)}
+.inp{background:var(--input);color:var(--text);border-radius:12px;padding:10px 14px;width:100%;outline:none}
+@keyframes gpop{0%{transform:scale(.6);opacity:0}25%{transform:scale(1.1);opacity:1}40%{transform:scale(1)}85%{opacity:1}100%{transform:scale(1);opacity:0}}
+@keyframes gfly{0%{transform:translate(0,0) scale(.3) rotate(0);opacity:1}100%{transform:translate(var(--x),var(--y)) scale(1.2) rotate(var(--r));opacity:0}}
+@keyframes gfade{0%{opacity:0}12%,80%{opacity:1}100%{opacity:0}}
+@keyframes gtext{0%{opacity:0;transform:translateY(10px)}25%,75%{opacity:1;transform:none}100%{opacity:0}}
+@keyframes gin{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.08);opacity:1}100%{transform:scale(1)}}
+@keyframes gfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes gdelta{0%{opacity:0;transform:translateY(6px)}20%{opacity:1}100%{opacity:0;transform:translateY(-16px)}}
+.gin{animation:gin .5s ease-out}.gfloat{animation:gfloat 2s ease-in-out infinite}
+.gdelta{position:absolute;right:0;top:-8px;font-weight:700;animation:gdelta 1.8s forwards;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="root"><p style="padding:24px;color:#889;margin:0">Loading…</p></div>
+<script type="text/babel" data-type="module">
+import React,{useState,useEffect,useMemo,useRef} from "react";
+import {createRoot} from "react-dom/client";
+import {Send,MessageCircle,Users,Settings,Shield,Search,Smile,Check,CheckCheck,BadgeCheck,Ban,Trash2,Megaphone,ArrowLeft,LogOut,X,Gift,Coins} from "lucide-react";
+import {initializeApp} from "firebase/app";
+import {getAuth,RecaptchaVerifier,signInWithPhoneNumber,onAuthStateChanged,signOut} from "firebase/auth";
+import {getFirestore,collection,doc,setDoc,updateDoc,addDoc,deleteDoc,onSnapshot,query,where,writeBatch,increment,arrayUnion} from "firebase/firestore";
+
+/* ============ 1. FIREBASE CONFIG: PASTE YOUR KEYS HERE ============ */
+const firebaseConfig = {
+  apiKey: "AIzaSyBF4HDV3bAETWBmcG446ookE5q1GD5dwd8",
+  authDomain: "mess-d456a.firebaseapp.com",
+  projectId: "mess-d456a",
+  storageBucket: "mess-d456a.firebasestorage.app",
+  messagingSenderId: "736135796668",
+  appId: "1:736135796668:web:f0984eac1cb5b78af9bdb9",
+  measurementId: "G-HC4VKVQ39S"
+};
+// Admin handle (reserved) and the ONLY phone number that can claim it.
+// Tip: add ADMIN_PHONE as a "Phone number for testing" in Firebase (Authentication -> Sign-in method -> Phone)
+// with a fixed code, then use the "Admin quick login" button on the login screen.
+const ADMIN_USERNAME = "admin";
+const ADMIN_PHONE = "+16505550100";
+/* =================================================================== */
+
+const configured = !firebaseConfig.apiKey.startsWith("YOUR_");
+const app = configured ? initializeApp(firebaseConfig) : null;
+const db = configured ? getFirestore(app) : null;
+const auth = configured ? getAuth(app) : null;
+
+const ONLINE_MS=65000, START_COINS=1000, BONUS=250, PK="vkgram_prefs2";
+const COLORS=["#e5524d","#f08c32","#e0a800","#4cae4f","#2a9fb5","#2787f5","#7b61d9","#d94fa0"];
+const AVATARS=["🦊","🐼","🐯","🦁","🐸","🐵","🐙","🦄","🐧","🤖","👻","🌸"];
+const EMOJIS=["😀","😂","😍","😎","🥳","😭","😡","👍","👎","🙏","👏","🔥","❤️","💯","🎉","🤔","😴","🤝","👀","✨","🍕","☕","🎮","🚀"];
+const G=[{e:"⭐",n:"Star",c:30},{e:"🔥",n:"Fire",c:50},{e:"🌹",n:"Rose",c:80},{e:"🎂",n:"Cake",c:100},{e:"🧸",n:"Teddy Bear",c:150},{e:"🚀",n:"Rocket",c:300},{e:"🏆",n:"Trophy",c:400},{e:"💎",n:"Diamond",c:500},{e:"👑",n:"Crown",c:800}];
+const THEMES={
+  light:{"--bg":"#edeef0","--panel":"#fff","--text":"#1f2937","--muted":"#6b7280","--line":"#e5e7eb","--rail":"#222b38","--chat":"#dde6ef","--input":"#f0f2f5","--hover":"#f1f3f5","--in":"#fff"},
+  dark:{"--bg":"#0a0a0b","--panel":"#111113","--text":"#e6e6e6","--muted":"#7a7f87","--line":"#23252a","--rail":"#050506","--chat":"#0a0a0b","--input":"#1a1b1e","--hover":"#18191c","--in":"#18191c"},
+  midnight:{"--bg":"#0a1128","--panel":"#101a33","--text":"#e8eeff","--muted":"#8b9bd0","--line":"#1c2a55","--rail":"#070d20","--chat":"#0b1430","--input":"#1a2750","--hover":"#16224a","--in":"#16224a"},
+  amoled:{"--bg":"#000","--panel":"#000","--text":"#fff","--muted":"#8a8a8a","--line":"#1c1c1c","--rail":"#000","--chat":"#000","--input":"#151515","--hover":"#111","--in":"#151515"}};
+const TNAMES={light:"Light (VK Clean)",dark:"Dark (Strict)",midnight:"Midnight Blue",amoled:"AMOLED Black"};
+const ACC={Blue:"#2787f5",Purple:"#8b5cf6",Emerald:"#10b981",Crimson:"#e11d48",Amber:"#d97706"};
+const WALLS={none:"none",dots:"radial-gradient(rgba(128,128,128,.3) 1.5px,transparent 1.5px)",grid:"linear-gradient(rgba(128,128,128,.15) 1px,transparent 1px),linear-gradient(90deg,rgba(128,128,128,.15) 1px,transparent 1px)",waves:"repeating-linear-gradient(45deg,rgba(128,128,128,.14) 0 2px,transparent 2px 14px)"};
+const WSIZE={dots:"22px 22px",grid:"24px 24px"};
+const loadPrefs=()=>{try{return{theme:"dark",acc:"Blue",wall:"none",...JSON.parse(localStorage.getItem(PK))}}catch{return{theme:"dark",acc:"Blue",wall:"none"}}};
+const cssVars=p=>({...(THEMES[p.theme]||THEMES.light),"--acc":ACC[p.acc]||ACC.Blue});
+
+const time=t=>new Date(t).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+const seen=t=>new Date(t).toLocaleString([],{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"});
+const online=(u,now)=>now-(u.lastSeen||0)<ONLINE_MS;
+const prev=m=>m.type==="gift"?"🎁 "+(G[m.gift]||G[0]).n:m.text;
+const B="acb rounded-xl px-4 py-2 font-semibold disabled:opacity-50";
+// Every user doc gets a defined id/uid (old docs without a uid field fall back to their document ID)
+const fixU=d=>({...d.data(),id:d.id,uid:d.data().uid||d.id});
+const idOf=u=>u?(u.id||u.uid):undefined;
+
+async function giveGift(from,to,gi,text,free){
+  const fid=idOf(from);
+  if(!fid||!to||!G[gi])throw new Error("Recipient not found. Reload the page and try again.");
+  const g=G[gi],b=writeBatch(db);
+  if(!free)b.update(doc(db,"users",fid),{coins:increment(-g.c)});
+  b.update(doc(db,"users",to),{gifts:arrayUnion({g:gi,by:fid,n:from.name,t:text||"",ts:Date.now()})});
+  b.set(doc(collection(db,"messages")),{from:fid,to,participants:[fid,to],type:"gift",gift:gi,text:text||"",ts:Date.now(),read:false});
+  b.set(doc(db,"stats","global"),{gifts:increment(1),messages:increment(1)},{merge:true});
+  await b.commit();
+}
+
+const Avatar=({u,size=44,dot})=>(
+  <div className="relative shrink-0" style={{width:size,height:size}}>
+    <div className="w-full h-full rounded-md grid place-items-center" style={{background:u.color,fontSize:size*0.5}}>{u.emoji}</div>
+    {dot!==undefined&&<span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[var(--panel)] ${dot?"bg-green-500":"bg-slate-400"}`}/>}
+  </div>);
+const Name=({u})=>(
+  <span className="inline-flex items-center gap-1 font-semibold truncate">{u.name}
+    {u.verified&&<BadgeCheck size={16} className="text-[#2787f5] shrink-0" fill="currentColor" stroke="white"/>}</span>);
+const Picker=({f,set})=>(
+  <div className="space-y-2">
+    <div className="flex flex-wrap gap-1.5">{AVATARS.map(a=><button type="button" key={a} onClick={()=>set({emoji:a})} className={`w-9 h-9 rounded-full text-lg sel ${f.emoji===a?"ring-2 ring-[var(--acc)]":""}`}>{a}</button>)}</div>
+    <div className="flex gap-2">{COLORS.map(c=><button type="button" key={c} onClick={()=>set({color:c})} style={{background:c}} className={`w-7 h-7 rounded-full ${f.color===c?"ring-2 ring-offset-2 ring-slate-500":""}`}/>)}</div>
+  </div>);
+const Modal=({onClose,children})=>(
+  <div className="fixed inset-0 z-50 bg-black/60 grid place-items-center p-4" onClick={onClose}>
+    <div className="pn tx rounded-2xl w-full max-w-sm max-h-[90vh] overflow-y-auto shadow-2xl" onClick={e=>e.stopPropagation()}>{children}</div>
+  </div>);
+const Stat=({l,v})=>(<div className="pn rounded-2xl p-4 shadow-sm"><div className="text-3xl font-bold act">{v}</div><div className="text-sm mu">{l}</div></div>);
+
+const Setup=()=>(
+  <div className="min-h-screen grid place-items-center p-6 bg-slate-100"><div className="bg-white rounded-2xl shadow p-8 max-w-md">
+    <h1 className="text-xl font-bold mb-2">Almost there</h1>
+    <p className="text-slate-600">Open this file, find <code className="bg-slate-100 px-1 rounded">firebaseConfig</code> at the top of the script, paste your Firebase keys, save and reload.</p></div></div>);
+
+function Login(){
+  const [ph,setPh]=useState(""),[code,setCode]=useState(""),[conf,setConf]=useState(null),[err,setErr]=useState(""),[busy,setBusy]=useState(false);
+  const clean=ph.replace(/[\s()-]/g,"");
+  const send=async()=>{
+    setErr(""); if(!/^\+\d{8,15}$/.test(clean))return setErr("Use international format, e.g. +14155550123");
+    setBusy(true);
+    try{ try{window.rv?.clear()}catch{} window.rv=new RecaptchaVerifier(auth,"rc",{size:"invisible"}); setConf(await signInWithPhoneNumber(auth,clean,window.rv)); }
+    catch(e){ setErr(e.code==="auth/unauthorized-domain"?"Add this website's domain in Firebase -> Authentication -> Settings -> Authorized domains":e.message); try{window.rv?.clear()}catch{} }
+    setBusy(false);
+  };
+  const verify=async e=>{ e.preventDefault(); setBusy(true); setErr(""); try{await conf.confirm(code.trim())}catch{setErr("Wrong or expired code. Try again.")} setBusy(false); };
+  return(
+    <div className="min-h-screen grid place-items-center p-4">
+      <div className="pn rounded-3xl shadow-lg w-full max-w-sm overflow-hidden">
+        <div className="acb p-6 text-center"><Send className="mx-auto mb-2" size={36}/><h1 className="text-2xl font-bold">Vkgram</h1><p className="text-white/80 text-sm">Sign in with your phone number</p></div>
+        <div className="p-6 space-y-3">
+          {!conf?<>
+            <input className="inp" type="tel" placeholder="+1 415 555 0123" value={ph} onChange={e=>setPh(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()}/>
+            <button disabled={busy} onClick={send} className={B+" w-full"}>{busy?"Sending…":"Send SMS code"}</button>
+            <button onClick={()=>setPh(ADMIN_PHONE)} className="w-full text-sm act">Admin quick login</button>
+          </>:<form onSubmit={verify} className="space-y-3">
+            <p className="text-sm mu">Enter the 6-digit code sent to {clean}</p>
+            <input className="inp text-center tracking-widest text-lg" inputMode="numeric" maxLength={6} placeholder="••••••" value={code} onChange={e=>setCode(e.target.value)} autoFocus/>
+            <button disabled={busy||code.length<6} className={B+" w-full"}>{busy?"Checking…":"Verify and continue"}</button>
+            <button type="button" onClick={()=>{setConf(null);setCode("")}} className="w-full text-sm mu">Use a different number</button>
+          </form>}
+          {err&&<p className="text-sm text-red-500">{err}</p>}
+          <div id="rc"/>
+        </div>
+      </div>
+    </div>);
+}
+
+function Onboard({au,users,logout}){
+  const isAdm=au.phoneNumber===ADMIN_PHONE;
+  const [f,setF]=useState({u:isAdm?ADMIN_USERNAME:"",name:"",bio:"",emoji:AVATARS[0],color:COLORS[5]});
+  const [err,setErr]=useState(""),[busy,setBusy]=useState(false);
+  const set=p=>setF(o=>({...o,...p}));
+  const go=async()=>{
+    const u=f.u.trim().toLowerCase().replace(/^@/,"");
+    if(!/^[a-z0-9_]{3,20}$/.test(u))return setErr("Username needs 3-20 letters, digits or underscores");
+    if(!f.name.trim())return setErr("Enter a display name");
+    if(u===ADMIN_USERNAME&&!isAdm)return setErr("This username is reserved");
+    if(users.some(x=>x.username===u))return setErr("@"+u+" is already taken");
+    setBusy(true);
+    try{await setDoc(doc(db,"users",au.uid),{uid:au.uid,username:u,name:f.name.trim(),bio:f.bio.trim(),emoji:f.emoji,color:f.color,verified:isAdm,banned:false,coins:START_COINS,gifts:[],lastBonus:0,lastSeen:Date.now(),createdAt:Date.now()})}
+    catch(e){setErr(e.message);setBusy(false)}
+  };
+  return(
+    <div className="min-h-screen grid place-items-center p-4"><div className="pn rounded-3xl shadow-lg w-full max-w-sm p-6 space-y-3">
+      <h1 className="text-xl font-bold">Set up your profile</h1>
+      <input className="inp" placeholder="@username" value={f.u} disabled={isAdm} onChange={e=>set({u:e.target.value})} autoCapitalize="none"/>
+      <input className="inp" placeholder="Display name" value={f.name} onChange={e=>set({name:e.target.value})} maxLength={30}/>
+      <textarea className="inp resize-none" rows={2} placeholder="Bio (optional)" value={f.bio} onChange={e=>set({bio:e.target.value})} maxLength={140}/>
+      <Picker f={f} set={set}/>
+      {err&&<p className="text-sm text-red-500">{err}</p>}
+      <button disabled={busy} onClick={go} className={B+" w-full"}>Create profile</button>
+      <button onClick={logout} className="w-full text-sm mu">Cancel and sign out</button>
+    </div></div>);
+}
+
+function Profile({u,me,now,onClose,onChat,onGift}){
+  const cnt={}; (u.gifts||[]).forEach(x=>cnt[x.g]=(cnt[x.g]||0)+1);
+  const row=(l,v)=><div className="flex justify-between gap-3 py-2 border-b bl text-sm"><span className="mu">{l}</span><span className="text-right">{v}</span></div>;
+  return(
+    <Modal onClose={onClose}>
+      <div className="p-6 text-center">
+        <div className="mx-auto w-24 h-24 rounded-md grid place-items-center text-5xl" style={{background:u.color}}>{u.emoji}</div>
+        <div className="text-xl mt-3"><Name u={u}/></div>
+        <div className={`text-sm ${online(u,now)?"act":"mu"}`}>{online(u,now)?"online":"last seen "+seen(u.lastSeen||u.createdAt)}</div>
+      </div>
+      <div className="px-6">
+        {row("Username","@"+u.username)}{row("Bio",u.bio||"No bio yet")}
+        {row("Registered",new Date(u.createdAt).toLocaleDateString([],{year:"numeric",month:"long",day:"numeric"}))}
+        <div className="py-3"><div className="font-semibold text-sm mb-2">Gifts showcase</div>
+          {Object.keys(cnt).length===0?<p className="text-sm mu">No gifts yet.</p>:
+            <div className="flex flex-wrap gap-2">{Object.entries(cnt).map(([g,n])=><div key={g} title={G[g].n} className="sel rounded-xl px-3 py-1.5 text-2xl">{G[g].e}{n>1&&<span className="text-xs mu ml-1">x{n}</span>}</div>)}</div>}
+        </div>
+      </div>
+      <div className="p-6 pt-2 flex gap-2">
+        <button onClick={()=>onChat(idOf(u))} className={B+" flex-1"}>Send message</button>
+        {u.uid!==me.uid&&<button onClick={()=>onGift(idOf(u))} className="sel rounded-xl px-4 py-2 font-semibold flex-1 flex items-center justify-center gap-1.5"><Gift size={16}/>Send gift</button>}
+      </div>
+    </Modal>);
+}
+
+function GiftPicker({to,me,free,onClose,onSent}){
+  const [gi,setGi]=useState(0),[msg,setMsg]=useState(""),[busy,setBusy]=useState(false),[err,setErr]=useState("");
+  const g=G[gi],can=free||(me.coins||0)>=g.c;
+  const go=async()=>{ setBusy(true); try{await giveGift(me,idOf(to),gi,msg.trim(),free);onSent&&onSent(gi);onClose()}catch(e){setErr(e.message);setBusy(false)} };
+  return(
+    <Modal onClose={onClose}><div className="p-5 space-y-3">
+      <div className="flex justify-between items-center"><h3 className="font-bold text-lg">Gift for {to.name}</h3><span className="text-sm mu flex items-center gap-1"><Coins size={15}/>{me.coins||0}</span></div>
+      <div className="grid grid-cols-3 gap-2">{G.map((x,i)=>(
+        <button key={i} onClick={()=>setGi(i)} className={`sel rounded-xl py-2 ${gi===i?"ring-2 ring-[var(--acc)]":""}`}><div className="text-3xl">{x.e}</div><div className="text-xs">{x.n}</div><div className="text-xs mu">{free?"Free":x.c+" coins"}</div></button>))}</div>
+      <input className="inp" placeholder="Add a message (optional)" maxLength={100} value={msg} onChange={e=>setMsg(e.target.value)}/>
+      {err&&<p className="text-sm text-red-500">{err}</p>}
+      <p className="text-xs mu">Balance after: {(me.coins||0)-(free?0:g.c)} coins</p>
+      <button disabled={busy||!can} onClick={go} className={B+" w-full"}>{can?`Send ${g.n}${free?"":" for "+g.c+" coins"}`:"Not enough coins"}</button>
+    </div></Modal>);
+}
+
+function GiftAnim({g,onDone}){
+  useEffect(()=>{const t=setTimeout(onDone,2200);return()=>clearTimeout(t)},[]);
+  return(
+    <div className="fixed inset-0 z-[60] pointer-events-none grid place-items-center" style={{background:"rgba(0,0,0,.75)",animation:"gfade 2.2s forwards"}}>
+      <div className="text-center"><div style={{fontSize:96,animation:"gpop 2s ease-out forwards"}}>{g.e}</div>
+        <div className="mt-4 text-xs uppercase text-white/80" style={{letterSpacing:".35em",animation:"gtext 2s forwards"}}>{g.n}</div></div>
+    </div>);
+}
+
+function Prefs({me,logout,prefs,save}){
+  const [f,setF]=useState({name:me.name,bio:me.bio||"",emoji:me.emoji,color:me.color}),[ok,setOk]=useState(false);
+  const set=p=>{setOk(false);setF(o=>({...o,...p}))};
+  const left=864e5-(Date.now()-(me.lastBonus||0)),ready=left<=0;
+  const sv=async()=>{if(!f.name.trim())return;await updateDoc(doc(db,"users",me.uid),{name:f.name.trim(),bio:f.bio.trim(),emoji:f.emoji,color:f.color});setOk(true)};
+  const claim=()=>updateDoc(doc(db,"users",me.uid),{coins:increment(BONUS),lastBonus:Date.now()});
+  const chip=on=>`rounded-xl px-3 py-1.5 text-sm ${on?"acb":"sel"}`;
+  const card="pn rounded-2xl shadow-sm p-5 max-w-md space-y-3";
+  return(
+    <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 tx">
+      <div className={card}><h2 className="text-xl font-bold">Profile</h2>
+        <div className="flex items-center gap-3"><Avatar u={{...me,...f}} size={56}/><div><div className="font-semibold">{f.name}</div><div className="text-sm mu">@{me.username}</div></div></div>
+        <input className="inp" value={f.name} onChange={e=>set({name:e.target.value})} maxLength={30} placeholder="Display name"/>
+        <textarea className="inp resize-none" rows={2} value={f.bio} onChange={e=>set({bio:e.target.value})} maxLength={140} placeholder="Bio"/>
+        <Picker f={f} set={set}/>
+        <div className="flex items-center gap-3"><button onClick={sv} className={B}>Save changes</button>{ok&&<span className="text-sm text-green-500">Saved</span>}</div></div>
+      <div className={card}><h2 className="text-xl font-bold">Wallet</h2>
+        <div className="flex items-center justify-between"><span className="flex items-center gap-2 text-2xl font-bold"><Coins className="act"/>{me.coins}</span>
+          <button disabled={!ready} onClick={claim} className={B}>{ready?`Claim ${BONUS} coins`:`Next bonus in ${Math.ceil(left/36e5)}h`}</button></div></div>
+      <div className={card}><h2 className="text-xl font-bold">Appearance</h2>
+        <div className="flex flex-wrap gap-2">{Object.keys(THEMES).map(k=><button key={k} onClick={()=>save({...prefs,theme:k})} className={chip(prefs.theme===k)}>{TNAMES[k]}</button>)}</div>
+        <div className="flex gap-2">{Object.entries(ACC).map(([k,c])=><button key={k} title={k} onClick={()=>save({...prefs,acc:k})} style={{background:c}} className={`w-8 h-8 rounded-full ${prefs.acc===k?"ring-2 ring-offset-2 ring-slate-500":""}`}/>)}</div>
+        <div className="flex flex-wrap gap-2">{Object.keys(WALLS).map(k=><button key={k} onClick={()=>save({...prefs,wall:k})} className={chip(prefs.wall===k)+" capitalize"}>{k==="none"?"No wallpaper":k}</button>)}</div></div>
+      <button onClick={logout} className="flex items-center gap-1.5 text-red-500 rounded-xl px-4 py-2 hv"><LogOut size={16}/>Log out</button>
+    </div>);
+}
+
+function Admin({me,users,stats,ann,now}){
+  const [t,setT]=useState("users"),[q,setQ]=useState(""),[a,setA]=useState(""),[all,setAll]=useState([]),[fq,setFq]=useState("");
+  const [to,setTo]=useState(""),[gi,setGi]=useState(G.length-1),[amt,setAmt]=useState(100),[note,setNote]=useState("");
+  useEffect(()=>onSnapshot(collection(db,"messages"),s=>setAll(s.docs.map(d=>({id:d.id,...d.data()})).sort((x,y)=>y.ts-x.ts))),[]);
+  const nm=id=>users.find(x=>x.uid===id)?.name||"deleted";
+  const upd=(u,p)=>updateDoc(doc(db,"users",idOf(u)),p);
+  const batch=async(arr,fn)=>{const b=writeBatch(db);arr.slice(0,450).forEach(x=>fn(b,x));await b.commit()};
+  const del=async u=>{
+    if(!confirm(`Delete @${u.username} and all their messages?`))return;
+    const b=writeBatch(db);all.filter(m=>m.from===idOf(u)||m.to===idOf(u)).slice(0,450).forEach(m=>b.delete(doc(db,"messages",m.id)));
+    b.delete(doc(db,"users",idOf(u)));await b.commit();
+  };
+  const coins=u=>{const v=Number(prompt(`Coins for ${u.name}: add (e.g. 100) or remove (e.g. -100)`,"100"));if(v)upd(u,{coins:increment(Math.round(v))})};
+  const fm=all.filter(m=>(nm(m.from)+" "+nm(m.to)+" "+(m.text||"")).toLowerCase().includes(fq.toLowerCase()));
+  const target=users.find(x=>idOf(x)===to)||users.find(x=>idOf(x)!==idOf(me));
+  const tabs={users:"Users",mod:"Moderation",eco:"Gifts & Economy",stats:"Analytics"};
+  const card="pn rounded-2xl p-4 shadow-sm space-y-2";
+  const btn=(on,c)=>`w-9 h-9 grid place-items-center rounded-lg ${on?c:"sel"}`;
+  return(
+    <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 tx">
+      <h2 className="text-xl font-bold flex items-center gap-2"><Shield className="act"/>Admin Panel</h2>
+      <div className="flex flex-wrap gap-2">{Object.entries(tabs).map(([k,l])=><button key={k} onClick={()=>setT(k)} className={`rounded-xl px-3 py-1.5 text-sm font-semibold ${t===k?"acb":"pn"}`}>{l}</button>)}</div>
+
+      {t==="users"&&<div className="space-y-3">
+        <input className="inp pn" placeholder="Search users" value={q} onChange={e=>setQ(e.target.value)}/>
+        <div className="pn rounded-2xl shadow-sm divide-y bl">{users.filter(u=>(u.name+u.username).toLowerCase().includes(q.toLowerCase())).map(u=>(
+          <div key={u.uid} className="flex items-center gap-3 p-3 flex-wrap">
+            <Avatar u={u} size={40}/>
+            <div className="min-w-0 flex-1"><Name u={u}/><div className="text-xs mu">@{u.username}{u.banned&&<span className="text-red-500 font-semibold"> (banned)</span>}</div></div>
+            <button onClick={()=>coins(u)} className="sel rounded-lg px-2 h-9 text-sm flex items-center gap-1"><Coins size={15}/>{u.coins||0}</button>
+            {u.username!==ADMIN_USERNAME&&<div className="flex gap-1.5">
+              <button title="Toggle verified" onClick={()=>upd(u,{verified:!u.verified})} className={btn(u.verified,"bg-blue-500/20 text-[#2787f5]")}><BadgeCheck size={18}/></button>
+              <button title="Ban / unban" onClick={()=>upd(u,{banned:!u.banned})} className={btn(u.banned,"bg-red-500/20 text-red-500")}><Ban size={18}/></button>
+              <button title="Delete account" onClick={()=>del(u)} className={btn(false)}><Trash2 size={18}/></button></div>}
+          </div>))}</div></div>}
+
+      {t==="mod"&&<div className="space-y-3">
+        <div className={card}><div className="font-semibold flex items-center gap-2"><Megaphone size={18}/>Global announcement</div>
+          <textarea className="inp resize-none" rows={2} placeholder="Pinned for everyone" value={a} onChange={e=>setA(e.target.value)}/>
+          <button onClick={async()=>{if(!a.trim())return;await addDoc(collection(db,"announcements"),{text:a.trim(),ts:Date.now()});setA("")}} className={B}>Broadcast</button>
+          {ann.slice().reverse().map(x=><div key={x.id} className="flex items-center gap-2 text-sm"><span className="flex-1 truncate">{x.text}</span><button onClick={()=>deleteDoc(doc(db,"announcements",x.id))} className="text-red-500"><X size={16}/></button></div>)}</div>
+        <div className={card}><div className="font-semibold">Messages ({fm.length})</div>
+          <input className="inp" placeholder="Filter by name or text" value={fq} onChange={e=>setFq(e.target.value)}/>
+          <button disabled={!fm.length} onClick={()=>confirm(`Delete ${Math.min(fm.length,450)} message(s)?`)&&batch(fm,(b,m)=>b.delete(doc(db,"messages",m.id)))} className="rounded-xl px-3 py-1.5 text-sm bg-red-500 text-white disabled:opacity-40">Clear {fq?"matching":"all"} messages</button>
+          <div className="divide-y bl max-h-80 overflow-y-auto">{fm.slice(0,60).map(m=>(
+            <div key={m.id} className="flex items-center gap-2 py-2 text-sm"><span className="flex-1 min-w-0 truncate"><b>{nm(m.from)}</b> to <b>{nm(m.to)}</b>: {prev(m)}</span>
+              <button onClick={()=>deleteDoc(doc(db,"messages",m.id))} className="text-red-500 shrink-0"><Trash2 size={15}/></button></div>))}</div></div></div>}
+
+      {t==="eco"&&<div className="space-y-3">
+        <div className={card}><div className="font-semibold">Send a free gift</div>
+          <select className="inp" value={target?.uid||""} onChange={e=>setTo(e.target.value)}>{users.filter(u=>idOf(u)!==idOf(me)).map(u=><option key={idOf(u)} value={idOf(u)}>{u.name} (@{u.username})</option>)}</select>
+          <div className="flex flex-wrap gap-2">{G.map((x,i)=><button key={i} title={x.n} onClick={()=>setGi(i)} className={`sel rounded-xl px-3 py-1.5 text-2xl ${gi===i?"ring-2 ring-[var(--acc)]":""}`}>{x.e}</button>)}</div>
+          <button disabled={!target} onClick={async()=>{await giveGift(me,idOf(target),gi,"A gift from the admin",true);setNote("Gift sent")}} className={B}>Send {G[gi].n} for free</button></div>
+        <div className={card}><div className="font-semibold">Coins for everyone</div>
+          <input className="inp" type="number" value={amt} onChange={e=>setAmt(Number(e.target.value))}/>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={async()=>{await batch(users,(b,u)=>b.update(doc(db,"users",idOf(u)),{coins:increment(amt)}));setNote("Coins added")}} className={B}>Give {amt} to all</button>
+            <button onClick={async()=>{if(confirm(`Reset everyone to ${START_COINS} coins?`)){await batch(users,(b,u)=>b.update(doc(db,"users",idOf(u)),{coins:START_COINS}));setNote("Balances reset")}}} className="sel rounded-xl px-4 py-2 font-semibold">Reset all to {START_COINS}</button></div></div>
+        {note&&<p className="text-sm text-green-500">{note}</p>}</div>}
+
+      {t==="stats"&&<div className="grid grid-cols-2 gap-3">
+        <Stat l="Total users" v={users.length}/><Stat l="Online now" v={users.filter(u=>online(u,now)).length}/>
+        <Stat l="Total messages" v={stats.messages||0}/><Stat l="Total gifts sent" v={stats.gifts||0}/></div>}
+    </div>);
+}
+
+function Messenger({me,users,logout,prefs,save}){
+  const admin=me.username===ADMIN_USERNAME;
+  const [tab,setTab]=useState("chats"),[peer,setPeer]=useState(null),[q,setQ]=useState(""),[text,setText]=useState(""),[emo,setEmo]=useState(false);
+  const [prof,setProf]=useState(null),[giftTo,setGiftTo]=useState(null),[anim,setAnim]=useState(null),[dl,setDl]=useState(0);
+  const seenIds=useRef(null),pc=useRef(me.coins||0);
+  const [msgs,setMsgs]=useState([]),[ann,setAnn]=useState([]),[stats,setStats]=useState({}),[now,setNow]=useState(Date.now());
+  const end=useRef(null);
+  const withId=s=>s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.ts-b.ts);
+
+  useEffect(()=>{
+    const u1=onSnapshot(query(collection(db,"messages"),where("participants","array-contains",me.uid)),s=>{
+      const arr=withId(s);
+      if(!seenIds.current)seenIds.current=new Set(arr.map(m=>m.id));
+      else{const fresh=arr.filter(m=>!seenIds.current.has(m.id));fresh.forEach(m=>seenIds.current.add(m.id));
+        const gm=fresh.filter(m=>m.type==="gift"&&m.to===me.uid&&Date.now()-m.ts<20000).pop();if(gm)setAnim(G[gm.gift]||G[0])}
+      setMsgs(arr)});
+    const u2=onSnapshot(collection(db,"announcements"),s=>setAnn(withId(s)));
+    const u3=onSnapshot(doc(db,"stats","global"),s=>setStats(s.data()||{}));
+    const beat=()=>{updateDoc(doc(db,"users",me.uid),{lastSeen:Date.now()}).catch(()=>{});setNow(Date.now())};
+    beat(); const i=setInterval(beat,30000);
+    return()=>{u1();u2();u3();clearInterval(i)};
+  },[me.uid]);
+
+  useEffect(()=>{const c=me.coins||0;if(c!==pc.current){setDl(c-pc.current);pc.current=c;const t=setTimeout(()=>setDl(0),1800);return()=>clearTimeout(t)}},[me.coins]);
+  const byId=id=>id?users.find(u=>idOf(u)===id):undefined;
+  const peerU=byId(peer);
+  const profU=byId(prof),giftU=byId(giftTo);
+  const thread=useMemo(()=>msgs.filter(m=>m.from===peer||m.to===peer),[msgs,peer]);
+  const convos=useMemo(()=>{
+    const m={};
+    msgs.forEach(x=>{const p=x.from===me.uid?x.to:x.from;m[p]=m[p]||{unread:0};m[p].last=x;if(x.to===me.uid&&!x.read)m[p].unread++;});
+    return m;
+  },[msgs]);
+  const unreadAll=Object.values(convos).reduce((a,c)=>a+c.unread,0);
+
+  useEffect(()=>{
+    if(!peer)return;
+    const un=msgs.filter(m=>m.from===peer&&m.to===me.uid&&!m.read);if(!un.length)return;
+    const b=writeBatch(db);un.forEach(m=>b.update(doc(db,"messages",m.id),{read:true}));b.commit().catch(()=>{});
+  },[msgs,peer]);
+  useEffect(()=>{end.current?.scrollIntoView({behavior:"smooth"})},[thread.length,peer]);
+
+  const openChat=id=>{if(!id)return;setPeer(id);setProf(null);setTab("chats")};
+  const send=async()=>{
+    const t=text.trim(),to=idOf(peerU);if(!t||!to||me.banned)return;setText("");setEmo(false);
+    try{
+      await addDoc(collection(db,"messages"),{from:idOf(me),to,participants:[idOf(me),to],type:"text",text:t,ts:Date.now(),read:false});
+      setDoc(doc(db,"stats","global"),{messages:increment(1)},{merge:true});
+    }catch(e){alert("Could not send: "+e.message)}
+  };
+
+  const list=users.filter(u=>u.uid!==me.uid)
+    .filter(u=>tab==="users"||convos[u.uid])
+    .filter(u=>(u.name+u.username).toLowerCase().includes(q.toLowerCase()))
+    .sort((a,b)=>tab==="users"?a.name.localeCompare(b.name):convos[b.uid].last.ts-convos[a.uid].last.ts);
+  const view=tab==="settings"||(tab==="admin"&&admin)?tab:"chat";
+  const showMain=view!=="chat"||!!peerU;
+  const pin=ann[ann.length-1];
+  const nav=(id,Icon,label,badge)=>(
+    <button title={label} onClick={()=>setTab(id)} className={`relative w-11 h-11 rounded-xl grid place-items-center transition ${tab===id?"acb":"text-slate-400 hover:bg-white/10 hover:text-white"}`}>
+      <Icon size={22}/>{badge>0&&<span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-red-500 text-white text-[10px] grid place-items-center">{badge}</span>}
+    </button>);
+
+  return(
+    <div className="flex bgm tx overflow-hidden" style={{height:"100dvh"}}>
+      <nav className="w-14 md:w-16 flex flex-col items-center py-3 gap-2 shrink-0" style={{background:"var(--rail)"}}>
+        <button className="mb-2" title="My profile" onClick={()=>setProf(me.uid)}><Avatar u={me} size={38}/></button>
+        {nav("chats",MessageCircle,"Chats",unreadAll)}
+        {nav("users",Users,"All users")}
+        {nav("settings",Settings,"Settings")}
+        {admin&&nav("admin",Shield,"Admin panel")}
+      </nav>
+
+      <aside className={`${showMain?"hidden md:flex":"flex"} w-full md:w-80 pn border-r bl flex-col shrink-0`}>
+        <div className="p-3 space-y-2">
+          <div className="flex items-center justify-between px-1"><h2 className="text-lg font-bold">{tab==="users"?"All users":"Chats"}</h2><span className="relative text-sm mu flex items-center gap-1"><Coins size={14}/>{me.coins||0}{dl!==0&&<span className={`gdelta ${dl<0?"text-red-500":"text-green-500"}`}>{dl>0?"+":""}{dl}</span>}</span></div>
+          <div className="relative"><Search size={16} className="absolute left-3 top-3 mu"/>
+            <input className="inp pl-9" placeholder="Search" value={q} onChange={e=>setQ(e.target.value)}/></div>
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          {list.length===0&&<p className="text-center text-sm mu p-6">{tab==="users"?"No users found.":"No chats yet. Open All users to start one."}</p>}
+          {list.map(u=>{const c=convos[u.uid];return(
+            <div key={u.uid} onClick={()=>tab==="users"?setProf(idOf(u)):openChat(idOf(u))} className={`w-full flex items-center gap-3 px-3 py-2.5 cursor-pointer hv ${peer===u.uid?"sel":""}`}>
+              <span onClick={e=>{e.stopPropagation();setProf(idOf(u))}}><Avatar u={u} dot={online(u,now)}/></span>
+              <div className="min-w-0 flex-1">
+                <div className="flex justify-between gap-2"><Name u={u}/>{c&&<span className="text-xs mu shrink-0">{time(c.last.ts)}</span>}</div>
+                <div className="flex justify-between gap-2">
+                  <span className="text-sm mu truncate">{c?(c.last.from===me.uid?"You: ":"")+prev(c.last):"@"+u.username}</span>
+                  {c&&c.unread>0&&<span className="min-w-5 h-5 px-1.5 rounded-full acb text-xs grid place-items-center shrink-0">{c.unread}</span>}
+                </div>
+              </div>
+            </div>)})}
+        </div>
+      </aside>
+
+      <main className={`${showMain?"flex":"hidden md:flex"} flex-1 flex-col min-w-0`}>
+        {pin&&<div className="pn tx border-b bl px-4 py-2 flex items-center gap-2 text-sm" style={{borderLeft:"3px solid var(--acc)"}}>
+          <Megaphone size={16} className="shrink-0"/><span className="min-w-0 flex-1"><b>Announcement:</b> {pin.text}</span>
+          {admin&&<button title="Remove announcement" onClick={()=>deleteDoc(doc(db,"announcements",pin.id))}><X size={16}/></button>}</div>}
+
+        {view==="admin"?<Admin me={me} users={users} stats={stats} ann={ann} now={now}/>:view==="settings"?<Prefs me={me} logout={logout} prefs={prefs} save={save}/>:!peerU?(
+          <div className="flex-1 grid place-items-center mu" style={{background:"var(--chat)"}}><span className="pn rounded-full px-4 py-1.5 text-sm">Select a chat to start messaging</span></div>
+        ):(<>
+          <header className="pn border-b bl px-3 py-2.5 flex items-center gap-3">
+            <button className="md:hidden mu" onClick={()=>setPeer(null)}><ArrowLeft/></button>
+            <button className="flex items-center gap-3 min-w-0 text-left" onClick={()=>setProf(idOf(peerU))}>
+              <Avatar u={peerU} size={40}/>
+              <div className="min-w-0"><Name u={peerU}/><div className={`text-xs ${online(peerU,now)?"act":"mu"}`}>{online(peerU,now)?"online":"last seen "+seen(peerU.lastSeen||peerU.createdAt)}</div></div></button>
+            <button title="Send gift" onClick={()=>setGiftTo(idOf(peerU))} className="ml-auto act p-1.5"><Gift size={22}/></button>
+          </header>
+          <div className="flex-1 overflow-y-auto p-3 md:p-5 space-y-1.5" style={{backgroundColor:"var(--chat)",backgroundImage:WALLS[prefs.wall],backgroundSize:WSIZE[prefs.wall]||"auto"}}>
+            {thread.length===0&&<p className="text-center text-sm mu mt-6">No messages yet. Say hi!</p>}
+            {thread.map(m=>{const mine=m.from===me.uid,g=G[m.gift]||G[0];return m.type==="gift"?(
+              <div key={m.id} className="flex justify-center py-1">
+                <div className="pn tx rounded-xl p-4 text-center max-w-[80%] border-2" style={{borderColor:"var(--acc)"}}>
+                  <div className="text-4xl">{g.e}</div>
+                  <div className="font-bold">{mine?"You sent":nameOf(users,m.from)+" sent you"} a {g.n}</div>
+                  {m.text&&<div className="text-sm italic">"{m.text}"</div>}
+                  <div className="text-[11px] opacity-80 mt-1">{time(m.ts)}</div>
+                </div></div>):(
+              <div key={m.id} className={`flex ${mine?"justify-end":"justify-start"}`}>
+                <div className={`max-w-[80%] px-3 py-1.5 rounded-2xl shadow-sm ${mine?"acb rounded-br-md":"tx rounded-bl-md"}`} style={mine?null:{background:"var(--in)"}}>
+                  <span className="whitespace-pre-wrap break-words">{m.text}</span>
+                  <span className={`ml-2 float-right mt-1.5 text-[11px] inline-flex items-center gap-0.5 ${mine?"text-white/80":"mu"}`}>{time(m.ts)}{mine&&(m.read?<CheckCheck size={14}/>:<Check size={14}/>)}</span>
+                </div></div>)})}
+            <div ref={end}/>
+          </div>
+          {me.banned?<div className="bg-red-500/15 text-red-500 text-center text-sm py-3">You are banned from sending messages.</div>:(
+            <div className="relative pn border-t bl p-2.5 flex items-center gap-2">
+              {emo&&<div className="absolute bottom-full left-2 mb-2 pn rounded-2xl shadow-lg border bl p-2 grid grid-cols-8 gap-1 w-72">
+                {EMOJIS.map(e=><button key={e} onClick={()=>setText(t=>t+e)} className="text-xl hv rounded-lg p-1">{e}</button>)}</div>}
+              <button onClick={()=>setEmo(!emo)} className="mu p-1.5"><Smile size={24}/></button>
+              <input className="inp" placeholder="Write a message…" value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()} maxLength={2000}/>
+              <button onClick={send} disabled={!text.trim()} className="acb disabled:opacity-40 w-10 h-10 rounded-md grid place-items-center shrink-0"><Send size={18}/></button>
+            </div>)}
+        </>)}
+      </main>
+
+      {profU&&<Profile u={profU} me={me} now={now} onClose={()=>setProf(null)} onChat={openChat} onGift={id=>{setProf(null);setGiftTo(id)}}/>}
+      {giftU&&<GiftPicker to={giftU} me={me} free={false} onSent={gi=>setAnim(G[gi])} onClose={()=>setGiftTo(null)}/>}
+      {anim&&<GiftAnim g={anim} onDone={()=>setAnim(null)}/>}
+    </div>);
+}
+const nameOf=(users,id)=>users.find(u=>u.uid===id)?.name||"Someone";
+
+function App(){
+  const [prefs,setPrefs]=useState(loadPrefs);
+  const [au,setAu]=useState(undefined),[users,setUsers]=useState(null),[err,setErr]=useState("");
+  const save=p=>{setPrefs(p);try{localStorage.setItem(PK,JSON.stringify(p))}catch{}};
+  useEffect(()=>onAuthStateChanged(auth,setAu),[]);
+  useEffect(()=>{
+    if(!au){setUsers(null);return}
+    return onSnapshot(collection(db,"users"),s=>setUsers(s.docs.map(fixU)),e=>setErr(e.message));
+  },[au?.uid]);
+  const me=au&&users&&users.find(u=>u.uid===au.uid);
+  const logout=()=>signOut(auth);
+  const wrap=c=><div style={cssVars(prefs)} className="tx bgm min-h-screen">{c}</div>;
+  if(err)return wrap(<div className="p-6 text-red-500">Database error: {err}<br/>Check your firebaseConfig and Firestore rules.</div>);
+  if(au===undefined||(au&&!users))return wrap(<div className="p-6 mu">Connecting…</div>);
+  if(!au)return wrap(<Login/>);
+  if(!me)return wrap(<Onboard au={au} users={users} logout={logout}/>);
+  return wrap(<Messenger me={me} users={users} logout={logout} prefs={prefs} save={save}/>);
+}
+
+createRoot(document.getElementById("root")).render(configured?<App/>:<Setup/>);
+</script>
+</body>
+</html>
